@@ -37,7 +37,7 @@ class log:
 
 
 class Logsession:
-    def __init__(self, appname = "python", log_dir: Path = Path(".logs")):
+    def __init__(self, appname = "python", log_dir: Path = Path(".logs"), folder = True):
         """
         We recommend using variables to hold Logsession() and another
         one that holds something like `<Logsession var>.logtypes
@@ -51,6 +51,7 @@ class Logsession:
 
         :param appname: optional Name of the app for logging
         :param log_dir: optional Logging folder where logs will be stored.
+        :param folder: If true. Logs will be placed inside a child folder with the appname. True by default
         """
 
         self.startmsg = "[TDJS.Loglib] Logsession started"
@@ -58,12 +59,22 @@ class Logsession:
         self.logtypes = log(appname=appname)
         self.log_dir = log_dir
         self.log_dir.mkdir(parents=True, exist_ok=True)
-        self.logfile = log_dir / f"{timestamp()}.log"
-        self.logfile.touch()
-        self.latest_log = log_dir / "latest.log"
-        self.latest_log.touch()
-        self.logfile.write_text(self.startmsg)
-        self.latest_log.write_text(self.startmsg)
+        if folder:
+            self.applogfolder = self.log_dir / appname
+            self.applogfolder.mkdir(parents=True, exist_ok=True)
+            self.logfile = log_dir / appname / f"{timestamp()}.log"
+            self.logfile.touch()
+            self.latest_log = log_dir / appname / "latest.log"
+            self.latest_log.touch()
+            self.logfile.write_text(self.startmsg)
+            self.latest_log.write_text(self.startmsg)
+        else:
+            self.logfile = log_dir / f"{timestamp()}.log"
+            self.logfile.touch()
+            self.latest_log = log_dir / "latest.log"
+            self.latest_log.touch()
+            self.logfile.write_text(self.startmsg)
+            self.latest_log.write_text(self.startmsg)
 
         self.appname = appname
     def log(self, text: str):

@@ -1,139 +1,161 @@
 import requests
+import json
 
-class LightEntity:
-    def __init__(self,url,token,headers):
-        self.haurl = url
-        self.hatoken = token
-        self.headers = headers
-        pass
-    def toggle(self, entity):
-        return requests.post(
-            f"{self.haurl}/api/services/light/toggle",
-            headers=self.headers,
-            json={
-                "entity_id": entity
-            },
-            timeout=5
+
+
+
+
+class LightEntityObject:
+    def __init__(self,
+                 AUTHORITY: HomeAssistant,
+                 entity_id: str):
+        self.AUTHORITY = AUTHORITY
+        self.entity_id = entity_id
+        self.entity_request_data = requests.get(
+            f"{AUTHORITY.HA_URL}/api/states/{entity_id}",
+            headers=AUTHORITY.HEADERS,
         )
-    def turn_on(self,
-                entity,
-                transition=2,
-                brightness: int | None = None,
-                rgb_color: list | None = None):
-        data = {
-                "entity_id": entity,
-            }
-        if brightness is not None:
-            data["brightness_pct"] = brightness
-        if rgb_color is not None:
-            data["rgb_color"] = rgb_color
+        self.entity_data = json.loads(self.entity_request_data.text,)
+
+    def toggle(self):
         return requests.post(
-            f"{self.haurl}/api/services/light/turn_on",
-            headers=self.headers,
+            f"{self.AUTHORITY.HA_URL}/api/services/light/toggle",
+            headers=self.AUTHORITY.HEADERS,
+            json={
+                "entity_id": self.entity_id
+            }
+        )
+
+    def turn_off(self):
+        return requests.post(
+            f"{self.AUTHORITY.HA_URL}/api/services/light/turn_off",
+            headers=self.AUTHORITY.HEADERS,
+            json={
+                "entity_id": self.entity_id
+            }
+        )
+
+    def turn_on(self,
+                transition: int =2,
+                brightness: int | None = None,
+                color: list | None = None):
+        data: dict[str, object] = {
+                "entity_id": self.entity_id,
+                "transition": transition
+            }
+        if isinstance(brightness, int):
+            data["brightness_pct"] = brightness
+        if isinstance(color, list):
+            data["rgb_color"] = color
+        return requests.post(
+            f"{self.AUTHORITY.HA_URL}/api/services/light/turn_on",
+            headers=self.AUTHORITY.HEADERS,
             json=data,
             timeout=5
         )
-    def turn_off(self, entity):
+
+class FanEntityObject:
+    def __init__(self, AUTHORITY: HomeAssistant, entity_id: str):
+        self.AUTHORITY = AUTHORITY
+        self.entity_id = entity_id
+        self.entity_request_data = requests.get(
+            f"{AUTHORITY.HA_URL}/api/states/{entity_id}",
+            headers=AUTHORITY.HEADERS,
+        )
+        self.entity_data = json.loads(self.entity_request_data.text, )
+
+    def toggle(self,):
         return requests.post(
-            f"{self.haurl}/api/services/light/turn_off",
-            headers=self.headers,
+            f"{self.AUTHORITY.HA_URL}/api/services/fan/toggle",
+            headers=self.AUTHORITY.HEADERS,
             json={
-                "entity_id": entity
+                "entity_id": self.entity_id
             },
             timeout=5
         )
 
+    def turn_off(self,):
+        return requests.post(
+            f"{self.AUTHORITY.HA_URL}/api/services/fan/turn_off",
+            headers=self.AUTHORITY.HEADERS,
+            json={
+                "entity_id": self.entity_id
+            },
+            timeout=5
+        )
 
+    def turn_on(self,):
+        return requests.post(
+            f"{self.AUTHORITY.HA_URL}/api/services/fan/turn_on",
+            headers=self.AUTHORITY.HEADERS,
+            json={
+                "entity_id": self.entity_id
+            },
+            timeout=5
+        )
 
-class FanEntity:
-    def __init__(self,url,token,headers):
-        self.haurl = url
-        self.hatoken = token
-        self.headers = headers
-        pass
-    def toggle(self, entity):
-        return requests.post(
-            f"{self.haurl}/api/services/fan/toggle",
-            headers=self.headers,
-            json={
-                "entity_id": entity
-            },
-            timeout=5
-        )
-    def turn_off(self, entity):
-        return requests.post(
-            f"{self.haurl}/api/services/fan/turn_off",
-            headers=self.headers,
-            json={
-                "entity_id": entity
-            },
-            timeout=5
-        )
-    def turn_on(self, entity):
-        return requests.post(
-            f"{self.haurl}/api/services/fan/turn_on",
-            headers=self.headers,
-            json={
-                "entity_id": entity
-            },
-            timeout=5
-        )
-    def set_settings(self,entity, oscillate: bool | None = None,
+    def set_settings(self, oscillate: bool | None = None,
                      direction: str | None = None,
                      speed: int | None = None,
                      preset: str | None = None
                      ):
         def request(data, ep, value):
             requests.post(
-                f"{self.haurl}/api/services/fan/{ep}",
-                headers=self.headers,
+                f"{self.AUTHORITY.HA_URL}/api/services/fan/{ep}",
+                headers=self.AUTHORITY.HEADERS,
                 json={
-                    "entity_id": entity,
+                    "entity_id": self.entity_id,
                     data: value
                 },
                 timeout=5
             )
+
         if oscillate is not None:
             request("oscillate", "oscillate", oscillate)
         if speed is not None:
-            request("percentage","set_percentage", speed)
+            request("percentage", "set_percentage", speed)
         if preset is not None:
             request("preset_mode", "set_preset_mode", preset)
         if direction is not None:
-            request("direction","set_direction", direction)
-
+            request("direction", "set_direction", direction)
 
 
 
 class HomeAssistant:
+    """
+    :param url: Do not include the / at the end of your url at this time. the code will automatically put it in at the time of making a request
+    """
     def __init__(self, url, token):
         if url is None or token is None:
             raise NameError("Missing a parameter of tdjs.homeassistant.HomeAssistant")
-        self.ha_url = url
-        self.ha_token = token
-        self.request_headers = {
-            "Authorization": f"Bearer {self.ha_token}",
+        self.HA_URL = url
+        self.HA_TOKEN = token
+        self.HEADERS = {
+            "Authorization": f"Bearer {self.HA_TOKEN}",
             "content-type": "application/json",
         }
 
-        self.LightEntity = LightEntity(self.ha_url, self.ha_token, self.request_headers)
-        self.FanEntity = FanEntity(self.ha_url, self.ha_token, self.request_headers)
-
 
         requests.get(
-            f"{self.ha_url}/api",
-            headers=self.request_headers
+            f"{self.HA_URL}/api",
+            headers=self.HEADERS
         )
 
 
         print("TDJS.HomeAssistantLib Initialized")
+
+    def ping_api(self):
+        return requests.get(
+            f"{self.HA_URL}/api/",
+            headers=self.HEADERS
+        )
     def get_state(self, entity):
         return requests.get(
-            f"{self.ha_url}/api/states/{entity}",
-            headers=self.request_headers,
+            f"{self.HA_URL}/api/states/{entity}",
+            headers=self.HEADERS,
         )
     def get_entities(self):
         return requests.get(
-            f"{self.ha_url}/api/states",
-            headers=self.request_headers
+            f"{self.HA_URL}/api/states",
+            headers=self.HEADERS
         )
