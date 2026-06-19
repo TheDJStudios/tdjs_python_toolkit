@@ -123,13 +123,10 @@ class FanEntityObject:
 
 
 class HomeAssistant:
-    """
-    :param url: Do not include the / at the end of your url at this time. the code will automatically put it in at the time of making a request
-    """
-    def __init__(self, url, token):
+    def __init__(self, url: str, token: str):
         if url is None or token is None:
             raise NameError("Missing a parameter of tdjs.homeassistant.HomeAssistant")
-        self.HA_URL = url
+        self.HA_URL = url.rstrip("/")
         self.HA_TOKEN = token
         self.HEADERS = {
             "Authorization": f"Bearer {self.HA_TOKEN}",
