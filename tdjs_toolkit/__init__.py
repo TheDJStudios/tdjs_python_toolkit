@@ -1,6 +1,5 @@
-from . import alert
-from . import log
-from . import homeassistant as HomeLib
+from .LogLib import Log
+from .HomeLib import HomeAssistant
 
 __version__ = 1.0
 

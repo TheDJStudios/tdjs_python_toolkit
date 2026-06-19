@@ -16,6 +16,7 @@ class LightEntityObject:
             headers=AUTHORITY.HEADERS,
         )
         self.entity_data = json.loads(self.entity_request_data.text,)
+        self.area = self.entity_data
 
     def toggle(self):
         return requests.post(

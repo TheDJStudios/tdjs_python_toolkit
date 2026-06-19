@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tdjs_toolkit"
+version = "1.0.0"
+description = "Random little libraries that could be useful or could not be useful."
+requires-python = ">=3.10"
+authors = [
+    { name = "TheDJStudios" },
+    { name = "TheDJHimself" },
+]
+dependencies = [
+    "requests",
+]
+
+[tool.setuptools.packages.find]
+include = ["tdjs_toolkit*"]
