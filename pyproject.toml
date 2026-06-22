@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "tdjs_toolkit"
-version = "0.0.3.1"
+version = "0.0.3.2"
 description = "Random little libraries that could be useful or could not be useful."
 requires-python = ">=3.10"
 authors = [
@@ -16,4 +16,4 @@ dependencies = [
 ]
 
 [tool.setuptools.packages.find]
-include = ["tdjs_toolkit*"]
+include = ["toolkit*"]
