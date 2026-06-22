@@ -1,5 +1,12 @@
-import requests
 import json
+from pathlib import Path
+import sys
+
+
+libs_path = Path(__file__).resolve().parent.parent / "HttpsLib"
+sys.path.insert(0, str(libs_path))
+
+import HttpsLib.requests as requests
 
 
 

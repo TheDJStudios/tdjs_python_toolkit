@@ -3,8 +3,8 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "toolkit"
-version = "0.0.3.2"
+name = "tdjs-toolkit"
+version = "0.0.4"
 description = "Random little libraries that could be useful or could not be useful."
 requires-python = ">=3.10"
 authors = [
@@ -12,8 +12,7 @@ authors = [
     { name = "TheDJHimself" },
 ]
 dependencies = [
-    "requests",
 ]
 
 [tool.setuptools.packages.find]
-include = ["toolkit*"]
+include = ["tdjs-toolkit*"]
